@@ -1,0 +1,4 @@
+content/
+tests/
+.env*
+.git/

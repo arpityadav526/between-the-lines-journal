@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS visitors (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), name text NOT NULL, created_at timestamptz NOT NULL DEFAULT now(), last_seen timestamptz NOT NULL DEFAULT now(), ip_hash text NOT NULL, user_agent text NOT NULL);
+CREATE TABLE IF NOT EXISTS sections (id text PRIMARY KEY, sort_order integer NOT NULL, title text NOT NULL, question text NOT NULL, hint text, text_de text NOT NULL, text_en text NOT NULL, answers jsonb NOT NULL, typo_answers text);
+CREATE TABLE IF NOT EXISTS unlocks (visitor_id uuid NOT NULL REFERENCES visitors(id) ON DELETE CASCADE, section_id text NOT NULL REFERENCES sections(id) ON DELETE CASCADE, created_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY(visitor_id,section_id));
+CREATE TABLE IF NOT EXISTS attempts (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), visitor_id uuid NOT NULL REFERENCES visitors(id) ON DELETE CASCADE, section_id text NOT NULL REFERENCES sections(id) ON DELETE CASCADE, time timestamptz NOT NULL DEFAULT now(), success boolean NOT NULL);
+CREATE INDEX IF NOT EXISTS attempt_lookup ON attempts(visitor_id, section_id, time);
+CREATE TABLE IF NOT EXISTS reads (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), visitor_id uuid NOT NULL REFERENCES visitors(id) ON DELETE CASCADE, section_id text NOT NULL REFERENCES sections(id) ON DELETE CASCADE, time timestamptz NOT NULL DEFAULT now(), revisit boolean NOT NULL);
+CREATE TABLE IF NOT EXISTS rate_limits (key text PRIMARY KEY, count integer NOT NULL, expires_at timestamptz NOT NULL);

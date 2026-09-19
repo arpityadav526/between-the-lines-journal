@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.vercel/
+.env*
+!.env.example
+content/*.local.json
+*.log
+coverage/
+test-results/
+playwright-report/
+.vscode/
+.vercel
