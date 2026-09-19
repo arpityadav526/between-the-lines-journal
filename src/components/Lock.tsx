@@ -1,0 +1,1 @@
+export function Lock({ open = false }: { open?: boolean }) { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d={open ? 'M9 10V6a4 4 0 0 1 8 0' : 'M8 10V6a4 4 0 0 1 8 0v4'}/><path d="M12 14v3"/></svg>; }
