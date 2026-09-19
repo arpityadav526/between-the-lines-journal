@@ -1,5 +1,7 @@
 # Between the lines
 
+Live: https://between-the-lines-eta.vercel.app
+
 A small bilingual personal journal built with Next.js App Router, TypeScript, Tailwind, Drizzle and Postgres. Visitors leave a nickname, read German, and answer a question to reveal English through an organic ink animation. There are no visitor accounts.
 
 ## Setup
@@ -151,3 +153,7 @@ Content edits need a seed, not a code redeploy. Secret changes require a new dep
 - [ ] Replace `ADMIN_TOKEN` with your own strong random secret, update Vercel, and redeploy.
 - [ ] Remove QA visitors if you do not want them in the dashboard.
 - [ ] Keep the local content file and env files out of Git.
+
+## Verified deployment
+
+Production is deployed to Vercel with Neon connected and all five required variables configured. The six placeholder chapters are encrypted in the database. Verification passed: production build, TypeScript, 16 automated tests, two mobile browser scenarios on the live URL, admin login/statistics/logout, and secure cookie flags. GitHub Actions also passed. Local private content is ready at `content/sections.local.json`; replace its placeholders before reseeding.
