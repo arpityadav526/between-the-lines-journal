@@ -76,24 +76,22 @@ beforeAll(async () => {
     },
   });
   await client.exec(readFileSync("migrations/0001.sql", "utf8"));
-  await database
-    .insert(sections)
-    .values({
-      id: "chapter-1",
-      order: 1,
-      title: "Test chapter",
-      question: "A test question",
-      textDe: encrypt("Deutscher Testtext", "chapter-1:de"),
-      textEn: encrypt(ENGLISH, "chapter-1:en"),
-      answers: [
-        await hashAnswer(normalizeAnswer("Grüner Garten")),
-        await hashAnswer("garden"),
-      ],
-      typoAnswers: encrypt(
-        JSON.stringify(["gruener garten", "garden"]),
-        "chapter-1:answers",
-      ),
-    });
+  await database.insert(sections).values({
+    id: "chapter-1",
+    order: 1,
+    title: "Test chapter",
+    question: "A test question",
+    textDe: encrypt("Deutscher Testtext", "chapter-1:de"),
+    textEn: encrypt(ENGLISH, "chapter-1:en"),
+    answers: [
+      await hashAnswer(normalizeAnswer("Grüner Garten")),
+      await hashAnswer("garden"),
+    ],
+    typoAnswers: encrypt(
+      JSON.stringify(["gruener garten", "garden"]),
+      "chapter-1:answers",
+    ),
+  });
 });
 beforeEach(async () => {
   state.cookies.clear();
@@ -156,13 +154,12 @@ describe("Postgres rate limiting", () => {
   });
 });
 describe("real API handlers and database access boundary", () => {
-  it("never returns English before correct unlock; logs the revisit after unlock", async () => {
+  it("returns no story before unlock and retires readable previews", async () => {
     const anonymous = await list(req("/api/sections"));
     expect(anonymous.status).toBe(401);
     expect(await anonymous.text()).not.toContain(ENGLISH);
     const anonymousPreview = await preview(
       req("/api/sections/chapter-1/preview"),
-      { params: Promise.resolve({ id: "chapter-1" }) },
     );
     expect(anonymousPreview.status).toBe(401);
     const registered = await register(
@@ -179,10 +176,11 @@ describe("real API handlers and database access boundary", () => {
     expect(overviewBody.sections[0]).not.toHaveProperty("textEn");
     expect(overviewBody.sections[0]).not.toHaveProperty("textDe");
     expect(JSON.stringify(overviewBody)).not.toContain(ENGLISH);
-    const german = await preview(req("/api/sections/chapter-1/preview"), {
-      params: Promise.resolve({ id: "chapter-1" }),
-    });
-    expect(await german.json()).toEqual({ text_de: "Deutscher Testtext" });
+    const retired = await preview(req("/api/sections/chapter-1/preview"));
+    expect(retired.status).toBe(410);
+    const retiredBody = await retired.text();
+    expect(retiredBody).not.toContain("Deutscher Testtext");
+    expect(retiredBody).not.toContain(ENGLISH);
     const bypass = await attempt();
     expect(bypass.status).toBe(403);
     expect(await bypass.text()).not.toContain(ENGLISH);

@@ -940,3 +940,88 @@ td {
     display: none !important;
   }
 }
+
+/* Illustrated, sealed chapters contain no story text. */
+.chapter-art {
+  display: block;
+  width: 100%;
+  height: 150px;
+  color: #788065;
+}
+.art-halo {
+  fill: #b3ad8620;
+}
+.art-repair {
+  stroke: #bda06a;
+  stroke-width: 3;
+}
+.chapter-card .card-top {
+  margin-bottom: 0;
+}
+.chapter-card .chapter-art {
+  margin: 6px 0 24px;
+}
+.reader-heading {
+  margin: 35px 0 28px;
+}
+.reader-heading .eyebrow {
+  margin-bottom: 14px;
+}
+.reader-heading h1 {
+  font-size: clamp(32px, 5vw, 45px);
+}
+.sealed-cover {
+  min-height: 360px;
+  border: 1px solid #c1ac793d;
+  background: #27312b;
+  padding: 30px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.sealed-cover .chapter-art {
+  height: 230px;
+  max-width: 300px;
+  color: #c1b58d;
+  margin-bottom: 18px;
+}
+.sealed-cover .art-halo {
+  fill: #c1ac790b;
+}
+.sealed-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #c1ac79;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+}
+.sealed-cover p {
+  font-family: var(--serif);
+  font-style: italic;
+  color: #aab29e;
+  font-size: 13px;
+  margin-top: 15px;
+}
+.opened-note {
+  font-family: var(--serif);
+  color: #c2c7b5;
+  font-size: 14px;
+}
+.bloom .locked-art {
+  animation: ink-cover 0.95s forwards;
+}
+@media (max-width: 540px) {
+  .sealed-cover {
+    min-height: 320px;
+    padding: 20px;
+  }
+  .sealed-cover .chapter-art {
+    height: 200px;
+  }
+  .sealed-label {
+    font-size: 7px;
+  }
+}

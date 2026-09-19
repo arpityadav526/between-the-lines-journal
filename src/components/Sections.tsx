@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api, ApiError, type Section } from "./api";
 import { Lock } from "./Lock";
+import { ChapterArt } from "./ChapterArt";
 const descriptions = [
   "Where the story begins.",
   "The people in the margins.",
@@ -63,9 +64,10 @@ export function Sections() {
               </span>
               <span className="lock-label">
                 <Lock open={section.unlocked} />
-                {section.unlocked ? "OPENED" : "IN GERMAN"}
+                {section.unlocked ? "OPENED" : "LOCKED"}
               </span>
             </div>
+            <ChapterArt id={section.id} />
             <h2>{section.title}</h2>
             <p>{descriptions[index] ?? "Another page of the story."}</p>
             <div className="card-bottom">
@@ -78,7 +80,7 @@ export function Sections() {
         ))}
       </div>
       <p className="collection-footnote">
-        A question opens each translation. There is no hurry.
+        A question opens each story. There is no hurry.
       </p>
     </div>
   );

@@ -38,7 +38,7 @@ export default function Home() {
           </Link>
         </div>
         <div className="cover-bottom">
-          <span>FIRST IN GERMAN. THEN, A LITTLE CLOSER.</span>
+          <span>A SMALL QUESTION. A LITTLE CLOSER.</span>
           <span className="flourish" aria-hidden="true">
             ✳
           </span>
@@ -47,9 +47,9 @@ export default function Home() {
       <div className="reading-note">
         <span className="note-number">01</span>
         <p>
-          Each chapter begins in German. Answer a small question
-          <br className="desktop-break" /> and watch the ink make room for the
-          English story.
+          Each chapter keeps its story behind a small question.
+          <br className="desktop-break" /> Answer it, and watch the ink reveal
+          the page.
         </p>
         <span className="handwritten">Take your time.</span>
       </div>

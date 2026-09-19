@@ -5,12 +5,11 @@ import Link from "next/link";
 import { api, ApiError, type Section } from "./api";
 import { InkReveal } from "./InkReveal";
 import { Lock } from "./Lock";
+import { ChapterArt } from "./ChapterArt";
 export function SectionReader({ id }: { id: string }) {
   const router = useRouter();
   const [section, setSection] = useState<Section>();
-  const [german, setGerman] = useState("");
   const [english, setEnglish] = useState<string>();
-  const [language, setLanguage] = useState<"de" | "en">("de");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [wrong, setWrong] = useState(0);
@@ -20,22 +19,17 @@ export function SectionReader({ id }: { id: string }) {
     let active = true;
     (async () => {
       try {
-        const [list, preview] = await Promise.all([
-          api<{ sections: Section[] }>("/api/sections"),
-          api<{ text_de: string }>(`/api/sections/${id}/preview`),
-        ]);
+        const list = await api<{ sections: Section[] }>("/api/sections");
         if (!active) return;
         const found = list.sections.find((s) => s.id === id);
         if (!found) throw Error("This page was not found.");
         setSection(found);
-        setGerman(preview.text_de);
         if (found.unlocked) {
           const data = await api<{ text_en: string }>("/api/unlock", {
             sectionId: id,
           });
           if (active) {
             setEnglish(data.text_en);
-            setLanguage("en");
           }
         }
       } catch (e) {
@@ -67,7 +61,6 @@ export function SectionReader({ id }: { id: string }) {
       });
       setSection((s) => (s ? { ...s, unlocked: true } : s));
       setEnglish(data.text_en);
-      setLanguage("en");
     } catch (e) {
       setError((e as Error).message);
       setWrong((w) => w + 1);
@@ -83,20 +76,24 @@ export function SectionReader({ id }: { id: string }) {
         <Link href="/sections">← All chapters</Link>
         <span>A PAGE FROM MY LIFE</span>
       </nav>
-      <article className="paper reading-paper">
-        <div className="page-top">
-          <span>CHAPTER {String(section?.order ?? 0).padStart(2, "0")}</span>
-          <span>{language === "de" ? "DEUTSCH" : "ENGLISH"}</span>
-        </div>
-        <h1>{section?.title ?? "Opening the page…"}</h1>
-        <div className="small-rule" />
-        {german && (
-          <InkReveal german={german} english={english} language={language} />
-        )}
-        <div className="page-end" aria-hidden="true">
-          — ✳ —
-        </div>
-      </article>
+      <header className="reader-heading">
+        <span className="eyebrow">
+          CHAPTER {String(section?.order ?? 0).padStart(2, "0")}
+        </span>
+        <h1>{section?.title ?? "Opening the chapter…"}</h1>
+      </header>
+      {section && (
+        <InkReveal english={english}>
+          <div className="sealed-cover">
+            <ChapterArt id={id} />
+            <span className="sealed-label">
+              <Lock open={Boolean(english)} />
+              {english ? "THE PAGE IS OPENING" : "A STORY WAITING TO BE OPENED"}
+            </span>
+            <p>Some memories ask a little question first.</p>
+          </div>
+        </InkReveal>
+      )}
       {section && (
         <section className="question-card">
           <div className="question-heading">
@@ -104,25 +101,13 @@ export function SectionReader({ id }: { id: string }) {
             <span>
               {section.unlocked
                 ? "A LITTLE CLOSER NOW"
-                : "A SMALL QUESTION, BEFORE THE TRANSLATION"}
+                : "A SMALL QUESTION, BEFORE THE STORY"}
             </span>
           </div>
           {english ? (
-            <div className="language-options" aria-label="Story language">
-              <button
-                aria-pressed={language === "de"}
-                onClick={() => setLanguage("de")}
-              >
-                Original (Deutsch)
-              </button>
-              <span>/</span>
-              <button
-                aria-pressed={language === "en"}
-                onClick={() => setLanguage("en")}
-              >
-                English
-              </button>
-            </div>
+            <p className="opened-note">
+              This page is now yours to read. Take your time.
+            </p>
           ) : (
             <form onSubmit={submit}>
               <label htmlFor="answer">{section.question}</label>

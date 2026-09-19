@@ -2,7 +2,7 @@
 
 Live: https://between-the-lines-eta.vercel.app
 
-A small bilingual personal journal built with Next.js App Router, TypeScript, Tailwind, Drizzle and Postgres. Visitors leave a nickname, read German, and answer a question to reveal English through an organic ink animation. There are no visitor accounts.
+A small English-language personal journal built with Next.js App Router, TypeScript, Tailwind, Drizzle and Postgres. Visitors leave a nickname, see an illustrated chapter cover, and answer a question to reveal the hidden story through an organic ink animation. There are no visitor accounts.
 
 ## Setup
 
@@ -40,13 +40,13 @@ Open http://localhost:3000. The initial six chapters are placeholders. Their ans
 cp content/sections.example.json content/sections.local.json
 ```
 
-Edit only `content/sections.local.json`. Keep `id` stable; array order determines chapter order. Each entry contains `title`, `question`, `answers` (one or more), `text_de`, `text_en`, optional `hint`, and optional `allow_typo` (default false). Use `\n\n` for paragraph breaks.
+Edit only `content/sections.local.json`. Keep `id` stable; array order determines chapter order. Each entry contains `title`, `question`, `answers` (one or more), `text_en`, optional `hint`, and optional `allow_typo` (default false). Use `\n\n` for paragraph breaks.
 
 ```sh
 npm run seed
 ```
 
-The seeder loads `.env.local` and uses the local content file if present, otherwise the example. It validates all content before writing, encrypts both texts with AES-256-GCM, creates salted scrypt hashes, and updates everything in a single transaction. Sections removed from the JSON are removed from the database with their associated logs. **Reseeding revokes all existing unlocks for seeded sections**, so replacing placeholders never gives earlier demo visitors automatic access to your real text. Existing signed cookies do not override this revocation.
+The seeder loads `.env.local` and uses the local content file if present, otherwise the example. It validates all content before writing, encrypts the story with AES-256-GCM, creates salted scrypt hashes, and updates everything in a single transaction. Sections removed from the JSON are removed from the database with their associated logs. **Reseeding revokes all existing unlocks for seeded sections**, so replacing placeholders never gives earlier demo visitors automatic access to your real text. Existing signed cookies do not override this revocation.
 
 Both private content and environment files are gitignored, and `content/` is excluded from Vercel uploads. Never paste personal content into source files, issues, commits, or this README. Questions and titles are intentionally shown to registered visitors; they are not private once served. The repository contains only placeholder questions and answers.
 
@@ -55,20 +55,20 @@ Both private content and environment files are gitignored, and `content/` is exc
 - `POST /api/register { name }`: Unicode letters/numbers and a small set of name punctuation, normalized and sanitized, 2–30 characters. Stores ID, name, timestamps, salted IP hash, and a truncated user-agent. Never stores raw IPs or submitted answers.
 - Visitor cookie: signed HS256 JWT, httpOnly, SameSite=Strict, Secure in production, 30-day expiry, contains visitor ID and unlocked section IDs. The database remains authoritative to prevent stale-cookie and simultaneous-tab issues. Removing the cookie means leaving a name again; nicknames are not verified identities.
 - `GET /api/sections`: requires registration; returns only IDs, order, title, question, optional hint, and unlock flags. No story bodies or answer hashes.
-- `GET /api/sections/:id/preview`: registration required; returns only decrypted German. Up to 40 preview requests per visitor per 10 minutes.
+- `GET /api/sections/:id/preview`: retired; registered requests receive HTTP 410 with no story body.
 - `POST /api/unlock { sectionId, answer? }`: for a locked section, an answer is required. On success returns English and updates the cookie. For already-unlocked sections, omit the answer to retrieve English and log a revisit. No separate public English endpoint exists.
 - Answer normalization: Unicode NFC, trim, lowercase, ä→ae/ö→oe/ü→ue/ß→ss, remove other diacritics, strip punctuation/symbols, collapse whitespace. Exact hashes are compared using constant-time digest comparison. Multiple accepted answers have independent salts.
 - Optional one-typo acceptance uses Levenshtein distance ≤1, only for accepted normalized answers longer than five characters. Transpositions count as two edits. Hashes cannot support edit-distance matching directly, so enabling this option additionally stores the normalized accepted answers **encrypted with AES-GCM**, bound to the section. Leave it disabled if you want hash-only answer storage.
 - Failed attempts: a rolling 10-minute window, 5 wrong attempts per visitor+section. Postgres transaction advisory locks serialize guesses, so concurrent requests cannot bypass the budget. Cooldowns return HTTP 429 and `Retry-After`; failed answers themselves are not recorded.
 - A Postgres atomic upsert limits each IP hash to 120 API requests per 10 minutes; registration also allows 10/hour per IP hash and admin login 5/15 minutes. Counters are shared across Vercel instances. Outside Vercel, forwarding headers are untrusted and all requests share a `local` bucket; configure a trusted proxy before deploying elsewhere.
-- English is fetched only after successful unlocking (or a verified prior unlock). It is never in page props, initial HTML, public JS, German previews, or section lists. API responses use `private, no-store`. AES-GCM authenticates each value with section+language context and fresh 12-byte nonces.
+- English is fetched only after successful unlocking (or a verified prior unlock). It is never in page props, initial HTML, public JS, previews, or section lists. API responses use `private, no-store`. AES-GCM authenticates each value with section+language context and fresh 12-byte nonces.
 - All JSON mutations enforce same-origin requests and 4 KiB request-body limits. Zod validates inputs. Security headers include CSP, HSTS, frame denial, nosniff, no-referrer, and noindex. CSP allows inline Next.js bootstrap scripts/styles; no third-party scripts or analytics are included.
 
-**Privacy model:** this is an answer-gated translation, not a confidential sharing system. Anyone who registers can read/copy/translate German, and successful readers can share English. Use it for friends as intended; a known answer is not identity verification. The UI explains visit/attempt recording. Host infrastructure may maintain its own request logs independently of application storage.
+**Privacy model:** story text is withheld on the server until a correct answer or a verified previous unlock. Locked chapters contain only artwork, metadata, and the question. Successful readers can still copy or share the story. Use it for friends as intended; a known answer is not identity verification. The UI explains visit/attempt recording. Host infrastructure may maintain its own request logs independently of application storage.
 
 ## Ink reveal
 
-`src/components/InkReveal.tsx` blooms a hand-shaped SVG blot with turbulence/displacement from the page center, covers and fades German, then dries away as English lines/paragraphs stagger into view (~2.1 seconds). Language toggling replays a shorter version (~1.15 seconds). The expensive filter is confined to the blot and removed on smaller screens, retaining the irregular path and transform/opacity animation. Reduced-motion users get an immediate swap. Fonts are self-hosted Lora; paper texture is inline SVG noise with no image downloads. No other decorative animations run.
+`src/components/InkReveal.tsx` blooms a hand-shaped SVG blot with turbulence/displacement from the page center, covers and fades the illustrated cover, then dries away as the English story appears (~2.1 seconds). There is no language toggle. The expensive filter is confined to the blot and removed on smaller screens, retaining the irregular path and transform/opacity animation. Reduced-motion users get an immediate swap. Fonts are self-hosted Lora; paper texture is inline SVG noise with no image downloads. No other decorative animations run.
 
 ## Admin
 
@@ -94,7 +94,7 @@ npm run test:e2e
 # or TEST_BASE_URL=https://your-example-deployment.vercel.app npm run test:e2e
 ```
 
-These mobile browser tests create two QA visitors and cover registration, German-only responses (including HTML/JS/API), wrong answers, English reveal, language toggling, reload persistence, cookie flags, reduced motion and horizontal overflow. They expect the example question/answer and must not be run against real personal content without adapting the fixtures.
+These mobile browser tests create two QA visitors and cover registration, artwork-only locked pages and no story in HTML/JS/API responses, the retired preview endpoint, wrong answers, English reveal, reload persistence, cookie flags, reduced motion and horizontal overflow. By default they use the example content. To verify your configured chapters locally, set `TEST_CONTENT_FILE=content/sections.local.json`. This reads private content only in the test runner; never commit test artifacts or traces containing it.
 
 ## Public GitHub repository
 
@@ -147,7 +147,7 @@ Content edits need a seed, not a code redeploy. Secret changes require a new dep
 
 ## Before sharing personal pages
 
-- [ ] Put real German/English text, questions, and private answers in `content/sections.local.json`.
+- [ ] Put real English text, questions, and private answers in `content/sections.local.json`.
 - [ ] Confirm all five production env vars; preserve a secure copy of `CONTENT_KEY`.
 - [ ] Run `npm run seed` against production; it revokes demo unlocks.
 - [ ] Replace `ADMIN_TOKEN` with your own strong random secret, update Vercel, and redeploy.
@@ -156,4 +156,4 @@ Content edits need a seed, not a code redeploy. Secret changes require a new dep
 
 ## Verified deployment
 
-Production is deployed to Vercel with Neon connected and all five required variables configured. The six placeholder chapters are encrypted in the database. Verification passed: production build, TypeScript, 16 automated tests, two mobile browser scenarios on the live URL, admin login/statistics/logout, and secure cookie flags. GitHub Actions also passed. Local private content is ready at `content/sections.local.json`; replace its placeholders before reseeding.
+Production is deployed to Vercel with Neon connected and all five required variables configured. The six placeholder stories are encrypted in the database. The legacy `text_de` column remains for database compatibility but contains encrypted empty text and is never served. Verification passed: production build, TypeScript, 16 automated tests, two mobile browser scenarios on the live URL, admin login/statistics/logout, and secure cookie flags. GitHub Actions also passed. Local private content is ready at `content/sections.local.json`; replace its placeholders before reseeding.

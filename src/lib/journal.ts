@@ -30,14 +30,6 @@ export async function listSections(visitorId: string) {
     )
     .orderBy(sections.order);
 }
-export async function preview(id: string) {
-  const [section] = await db()
-    .select({ id: sections.id, textDe: sections.textDe })
-    .from(sections)
-    .where(eq(sections.id, id));
-  if (!section) throw new HttpError(404, "This page was not found.");
-  return { text_de: decrypt(section.textDe, id + ":de") };
-}
 export async function unlock(
   visitorId: string,
   sectionId: string,

@@ -17,7 +17,6 @@ const schema = z
       hint: z.string().max(500).optional(),
       answers: z.array(z.string().min(1).max(300)).min(1).max(10),
       allow_typo: z.boolean().default(false),
-      text_de: z.string().min(1).max(100000),
       text_en: z.string().min(1).max(100000),
     }),
   )
@@ -49,7 +48,8 @@ const prepared = await Promise.all(
       typoAnswers: s.allow_typo
         ? encrypt(JSON.stringify(normalized), s.id + ":answers")
         : null,
-      textDe: encrypt(s.text_de, s.id + ":de"),
+      // Keep the legacy column empty for backwards-compatible database upgrades.
+      textDe: encrypt("", s.id + ":de"),
       textEn: encrypt(s.text_en, s.id + ":en"),
     };
   }),

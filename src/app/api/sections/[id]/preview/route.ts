@@ -1,17 +1,10 @@
-import { endpoint, json } from "@/lib/http";
-import { globalLimit, rateLimit } from "@/lib/rate-limit";
+import { endpoint, HttpError } from "@/lib/http";
 import { visitorSession } from "@/lib/session";
-import { preview, touchVisitor } from "@/lib/journal";
-export async function GET(
-  request: Request,
-  context: { params: Promise<{ id: string }> },
-) {
-  return endpoint(async (req) => {
-    await globalLimit(req);
-    const session = await visitorSession();
-    await touchVisitor(session.sub);
-    await rateLimit("preview:" + session.sub, 40, 600);
-    const { id } = await context.params;
-    return json(await preview(id));
-  })(request);
-}
+// Retire the old readable preview endpoint. No story body is available here.
+export const GET = endpoint(async () => {
+  await visitorSession();
+  throw new HttpError(
+    410,
+    "Story previews are no longer available. Answer the chapter question to open it.",
+  );
+});

@@ -1,68 +1,50 @@
 [
   {
     "id": "chapter-1",
-    "title": "Kindheit",
+    "title": "Childhood",
     "question": "Placeholder question: type placeholder to open this example.",
-    "answers": [
-      "placeholder"
-    ],
+    "answers": ["placeholder"],
     "allow_typo": false,
-    "text_de": "Platzhalter: Hier kommt später mein Text hin.",
     "text_en": "Placeholder: my text will go here later."
   },
   {
     "id": "chapter-2",
-    "title": "Familie",
+    "title": "Family",
     "question": "Placeholder question: type placeholder to open this example.",
-    "answers": [
-      "placeholder"
-    ],
+    "answers": ["placeholder"],
     "allow_typo": false,
-    "text_de": "Platzhalter: Hier kommt später mein Text hin.",
     "text_en": "Placeholder: my text will go here later."
   },
   {
     "id": "chapter-3",
-    "title": "Schule",
+    "title": "School",
     "question": "Placeholder question: type placeholder to open this example.",
-    "answers": [
-      "placeholder"
-    ],
+    "answers": ["placeholder"],
     "allow_typo": false,
-    "text_de": "Platzhalter: Hier kommt später mein Text hin.",
     "text_en": "Placeholder: my text will go here later."
   },
   {
     "id": "chapter-4",
-    "title": "Wendepunkte",
+    "title": "Turning Points",
     "question": "Placeholder question: type placeholder to open this example.",
-    "answers": [
-      "placeholder"
-    ],
+    "answers": ["placeholder"],
     "allow_typo": false,
-    "text_de": "Platzhalter: Hier kommt später mein Text hin.",
     "text_en": "Placeholder: my text will go here later."
   },
   {
     "id": "chapter-5",
-    "title": "Fehler",
+    "title": "Mistakes",
     "question": "Placeholder question: type placeholder to open this example.",
-    "answers": [
-      "placeholder"
-    ],
+    "answers": ["placeholder"],
     "allow_typo": false,
-    "text_de": "Platzhalter: Hier kommt später mein Text hin.",
     "text_en": "Placeholder: my text will go here later."
   },
   {
     "id": "chapter-6",
-    "title": "Was ich mir wünsche",
+    "title": "What I Wish For",
     "question": "Placeholder question: type placeholder to open this example.",
-    "answers": [
-      "placeholder"
-    ],
+    "answers": ["placeholder"],
     "allow_typo": false,
-    "text_de": "Platzhalter: Hier kommt später mein Text hin.",
     "text_en": "Placeholder: my text will go here later."
   }
 ]

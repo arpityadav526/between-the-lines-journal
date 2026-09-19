@@ -1,56 +1,59 @@
 "use client";
-import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useId, useState, type CSSProperties } from "react";
 export function InkReveal({
-  german,
   english,
-  language,
+  children,
 }: {
-  german: string;
   english?: string;
-  language: "de" | "en";
+  children: React.ReactNode;
 }) {
-  const target = language === "en" && english ? english : german;
-  const [displayed, setDisplayed] = useState(german);
+  const [displayed, setDisplayed] = useState<string>();
   const [phase, setPhase] = useState("idle");
-  const [shownLanguage, setShownLanguage] = useState<"de" | "en">("de");
-  const previous = useRef(german);
-  const revealed = useRef(false);
   const id = useId().replace(/:/g, "");
   useEffect(() => {
-    if (previous.current === target) return;
-    previous.current = target;
+    if (english === undefined) return;
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    const short = revealed.current;
-    revealed.current = true;
-    setPhase(reduced ? "reduced" : short ? "bloom short" : "bloom");
+    setPhase(reduced ? "reduced" : "bloom");
     const swap = window.setTimeout(
       () => {
-        setDisplayed(target);
-        setShownLanguage(language);
-        setPhase(reduced ? "reduced" : short ? "dry short" : "dry");
+        setDisplayed(english);
+        setPhase(reduced ? "reduced" : "dry");
       },
-      reduced ? 0 : short ? 430 : 950,
+      reduced ? 0 : 950,
     );
     const finish = window.setTimeout(
       () => setPhase("idle"),
-      reduced ? 180 : short ? 1150 : 2100,
+      reduced ? 180 : 2100,
     );
     return () => {
       clearTimeout(swap);
       clearTimeout(finish);
     };
-  }, [target, language]);
+  }, [english]);
   return (
     <div className={"ink-page " + phase} aria-busy={phase !== "idle"}>
-      <div className="story-text" lang={shownLanguage} aria-live="polite">
-        {displayed.split("\n").map((line, i) => (
-          <p key={i} style={{ "--line": Math.min(i, 8) } as CSSProperties}>
-            {line || "\u00a0"}
-          </p>
-        ))}
-      </div>
+      {displayed === undefined ? (
+        <div className="locked-art">{children}</div>
+      ) : (
+        <article className="paper reading-paper">
+          <div className="page-top">
+            <span>BETWEEN THE LINES</span>
+            <span>THE STORY</span>
+          </div>
+          <div className="story-text" lang="en" aria-live="polite">
+            {displayed.split("\n").map((line, i) => (
+              <p key={i} style={{ "--line": Math.min(i, 8) } as CSSProperties}>
+                {line || "\u00a0"}
+              </p>
+            ))}
+          </div>
+          <div className="page-end" aria-hidden="true">
+            — ✳ —
+          </div>
+        </article>
+      )}
       <div className="ink-bloom" aria-hidden="true">
         <svg viewBox="0 0 200 200" preserveAspectRatio="none">
           <defs>
